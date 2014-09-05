@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+
+touch /var/lock/subsys/local
+# Need to set HOME explicitly due to http://tickets.opscode.com/browse/CHEF-2646
+export HOME=/root
+knife exec /etc/chef/bootstrap_node.rb -c /etc/chef/client.rb > /dev/null
+
+# Below recommended by Cloudera for Centos 6.4
+echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
