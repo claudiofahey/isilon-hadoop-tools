@@ -15,7 +15,7 @@
     "ssh_commands": [
         "/mnt/scripts/isilon-hadoop-tools/bde/create_cdh_users.sh",
         "/mnt/scripts/isilon-hadoop-tools/bde/mount_data_directories.pl",
-        "tar -xzvf /mnt/scripts/isilon-hadoop-tools/bde/centos6.4-overwrite-files.tar.gz -C /",
+        "cp -Rv /mnt/scripts/isilon-hadoop-tools/bde/centos6.4-overwrite/* /",
         "sysctl -p ; true",
         "echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag"
         ]
