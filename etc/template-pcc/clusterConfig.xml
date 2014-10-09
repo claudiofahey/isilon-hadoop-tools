@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><clusterConfig>
+     <!-- Cluster Name.  This will be used on command lines, so avoid spaces and special characters. -->
+     <clusterName>mycluster1</clusterName>
+
+     <gphdStackVer>PHD-2.1.0.0</gphdStackVer>
+
+     <!-- Comma separated list.  Choices are: hdfs,yarn,zookeeper,hbase,hive,hawq,pig,mahout,gfxd -->
+     <!-- services not meant to be installed can be deleted from the following list. -->
+     <services>isi-hdfs,yarn,zookeeper,hbase,hive,hawq,pig,mahout,pxf</services>
+
+    <!-- Secure cluster. Set this parameter to true in order to secure cluster -->
+    <securityEnabled>false</securityEnabled>
+
+    <!-- Hostname of the machine which will be used as the client -->
+     <!-- ICM will install Pig, Hive, HBase and Mahout libraries on this machine. -->
+     <client>mycluster1-master-0.all-nc.alliances.isilon.com</client>
+
+     <!-- Comma separated list of fully qualified hostnames should be 
+          associated with each service role -->
+     <!-- services (and corresponding roles) not meant to be installed can 
+          be deleted from the following list -->
+     <hostRoleMapping>
+
+         <yarn>
+            <!-- YARN, ResourceManager role (mandatory) -->
+             <yarn-resourcemanager>mycluster1-master-0.all-nc.alliances.isilon.com</yarn-resourcemanager>
+
+            <yarn-nodemanager>
+mycluster1-worker-0.all-nc.alliances.isilon.com,
+mycluster1-worker-1.all-nc.alliances.isilon.com,
+mycluster1-worker-2.all-nc.alliances.isilon.com
+            </yarn-nodemanager>
+
+            <!-- Generally runs on the ResourceManager (mandatory) -->
+             <mapreduce-historyserver>mycluster1-master-0.all-nc.alliances.isilon.com</mapreduce-historyserver>
+         </yarn>
+
+         <zookeeper>
+            <!-- ZOOKEEPER, zookeeper-server role (required if using HBase) ** list an *ODD NUMBER*, comma separated ** -->
+            <!-- Options to run zookeepers: Master nodes like Secondary NameNode, ResourceManager, HAWQ Standby node,etc EXCEPT NameNode-->
+             <zookeeper-server>mycluster1-master-0.all-nc.alliances.isilon.com</zookeeper-server>
+         </zookeeper>
+
+         <hbase>
+             <!-- HBASE, master role -->
+             <hbase-master>mycluster1-master-0.all-nc.alliances.isilon.com</hbase-master>
+
+             <!-- HBASE, region server role ** list of one or more, comma separated ** -->
+             <!-- HBase region servers are generally deployed on the DataNode hosts -->
+             <hbase-regionserver>mycluster1-master-0.all-nc.alliances.isilon.com</hbase-regionserver>
+         </hbase>
+
+         <hive>
+             <!-- HIVE, server role -->
+             <!-- Hive thrift server would be running on this machine. -->
+             <hive-server>mycluster1-master-0.all-nc.alliances.isilon.com</hive-server>
+
+             <!-- HIVE, metastore role. This host will run an instance of PostgreSQL. -->
+             <!-- Postgres database is installed on this node to maintain Hive metadata. -->
+             <hive-metastore>mycluster1-master-0.all-nc.alliances.isilon.com</hive-metastore>
+         </hive>
+
+         <hawq>
+             <!-- HAWQ, hawq master role (mandatory).  This should be a different host than the NameNode host. -->
+             <hawq-master>mycluster1-master-0.all-nc.alliances.isilon.com</hawq-master>
+
+             <!-- HAWQ, hawq standbymaster role (optional) - ** comment out XML tag if not required **-->
+             <!--<hawq-standbymaster>mycluster1-master-0.all-nc.alliances.isilon.com</hawq-standbymaster>-->
+
+             <!-- HAWQ, hawq segments (mandatory) ** list of one or more, comma separated ** -->
+             <!-- In many configurations, this will be the same list as the DataNode role. -->
+             <hawq-segment>
+mycluster1-worker-0.all-nc.alliances.isilon.com,
+mycluster1-worker-1.all-nc.alliances.isilon.com,
+mycluster1-worker-2.all-nc.alliances.isilon.com
+             </hawq-segment>
+         </hawq>
+
+         <gfxd>
+             <gfxd-locator>mycluster1-master-0.all-nc.alliances.isilon.com</gfxd-locator>
+             <gfxd-server>mycluster1-master-0.all-nc.alliances.isilon.com</gfxd-server>
+         </gfxd>
+
+     <pxf>
+        <!-- PXF, pxf services (mandatory) that is a webapp container ** list of one or more, comma separated ** -->
+        <!-- Always collocate with all datanodes and the namenode -->
+        <pxf-service>
+mycluster1-worker-0.all-nc.alliances.isilon.com,
+mycluster1-worker-1.all-nc.alliances.isilon.com,
+mycluster1-worker-2.all-nc.alliances.isilon.com
+        </pxf-service>
+    </pxf>
+</hostRoleMapping>
+
+     <externalServices>
+       <isi-hdfs>
+         <url>
+            hdfs://mycluster1-hdfs.all-nc.alliances.isilon.com:8020
+        </url>
+       </isi-hdfs>
+     </externalServices>
+
+     <servicesConfigGlobals>
+         <!-- List of one or more, comma separated, disk mount points on slave nodes (datanode/nodemanager/regionservers) -->
+         <datanode.disk.mount.points>/data/1</datanode.disk.mount.points>
+
+        <!-- List of one or more, comma separated, disk mount points on NameNode.
+             More than one can be configured for NameNode local data redundancy. -->
+        <namenode.disk.mount.points></namenode.disk.mount.points>
+
+        <!-- List of one or more, comma separated disk mount points on secondary-namenode.
+             More than one can be configured for secondary-namenode local data redundancy. -->
+
+        <secondary.namenode.disk.mount.points></secondary.namenode.disk.mount.points>
+
+        <!-- Max. memory on nodemanager collectively available to all the task containers including application master. --> 
+         <yarn.nodemanager.resource.memory-mb>8192</yarn.nodemanager.resource.memory-mb>
+
+        <!-- Min memory required for the task or application manager container   -->
+         <yarn.scheduler.minimum-allocation-mb>1024</yarn.scheduler.minimum-allocation-mb>
+
+        <!-- THIS IS THE "NameNode port". -->
+         <dfs.port>8020</dfs.port>
+
+        <!-- This syntax correlates to a bash array data structure. There are no commas seperating the values. It's just whitespace.
+             If you enter multiple entries with the exact same value; each entry will result in a HAWQ segment placed on a host.
+             If you want two segments per hosts make two entries with the same values; which may or may not be placed on the same disk within the host.
+             WHICH MAY OR MAY NOT BE ON THE SAME DISK.  BY CONVENTION, THE LAST PART OF THIS STRING IS
+             In the example below, two segments will be created on every HAWQ segment host -->
+         <hawq.segment.directory>(/data/1/primary)</hawq.segment.directory>
+
+        <!-- THIS IS A SINGLE VALUE, AND IDEALLY THE DIRECTORY SPECIFIED CORRELATES WITH A RAID VOLUME, AS THE
+             MASTER DATA DIRECTORY CONTAINS IMPORTANT METADATA. -->
+         <hawq.master.directory>/data/1/master</hawq.master.directory>
+
+        <!-- IDEALLY, THIS DIRECTORY IS ON ITS OWN DEVICE, TO MINIMIZE I/O CONTENTION BETWEEN ZOOKEEPER
+             AND OTHER PROCESSES. -->
+         <zookeeper.data.dir>/var/lib/zookeeper</zookeeper.data.dir>
+
+         <!-- Zookeeper Client Port -->
+         <zookeeper.client.port>2181</zookeeper.client.port>
+
+         <!-- JAVA_HOME defaults to this. Update if you have java installed elsewhere -->
+         <cluster_java_home>/usr/java/default</cluster_java_home>
+
+         <!--maximum amount of HEAP to use. Default is 1024-->
+         <dfs.namenode.heapsize.mb>2048</dfs.namenode.heapsize.mb>
+         <dfs.datanode.heapsize.mb>2048</dfs.datanode.heapsize.mb>
+         <yarn.resourcemanager.heapsize.mb>2048</yarn.resourcemanager.heapsize.mb>
+         <yarn.nodemanager.heapsize.mb>2048</yarn.nodemanager.heapsize.mb>
+         <hbase.heapsize.mb>2048</hbase.heapsize.mb>
+
+         <dfs.datanode.failed.volumes.tolerated>0</dfs.datanode.failed.volumes.tolerated>
+
+         <!-- Security configurations -->
+         <!-- provide security realm. e.g. EXAMPLE.COM -->
+         <security.realm/>
+         <!-- provide the path of kdc conf file -->
+         <security.kdc.conf.location>/etc/krb5.conf</security.kdc.conf.location>
+
+     </servicesConfigGlobals>
+
+ </clusterConfig>

@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+<!-- i/o properties -->
+
+<property>
+  <name>mapreduce.task.io.sort.factor</name>
+  <value>100</value>
+  <description>The number of streams to merge at once while sorting
+  files.  This determines the number of open file handles.</description>
+  <final>true</final>
+</property>
+
+<property>
+  <name>mapreduce.task.io.sort.mb</name>
+  <value>512</value>
+  <description>The total amount of buffer memory to use while sorting 
+  files, in megabytes.  By default, gives each merge stream 1MB, which
+  should minimize seeks.</description>
+</property>
+
+<property>
+  <name>mapreduce.cluster.local.dir</name>
+  <value>${datanode.disk.mount.points}/mapred/local</value>
+  <description>The local directory where MapReduce stores intermediate
+  data files.  May be a comma-separated list of
+  directories on different devices in order to spread disk i/o.
+  Directories that do not exist are ignored.
+  </description>
+  <final>true</final>
+</property>
+
+<property>
+  <name>mapreduce.jobtracker.system.dir</name>
+  <value>/mapred/system</value>
+  <description>The HDFS directory where MapReduce stores control files.
+  </description>
+  <final>true</final>
+</property>
+
+<property>
+  <name>mapreduce.cluster.temp.dir</name>
+  <value>/mapred/temp</value>
+  <description>A shared HDFS directory for temporary files.
+  </description>
+  <final>true</final>
+</property>
+
+<property>
+  <name>mapreduce.map.memory.mb</name>
+  <value>1536</value>
+  <description>default memory requested for map task</description>
+</property>
+
+<property>
+  <name>mapreduce.reduce.memory.mb</name>
+  <value>3072</value>
+  <description>default memory requested for reduce task</description>
+</property>
+
+<property>
+  <name>yarn.app.mapreduce.am.resource.mb</name>
+  <value>1536</value>
+  <description>The amount of memory the MR AppMaster needs.</description>
+</property>
+
+<property>
+  <name>mapreduce.map.java.opts</name>
+  <value>-Xmx1024m</value>
+  <description>Java opts for the map container process. 
+               Default heap allocated for map container is about 66% of 
+               default ${mapreduce.map.memory.mb}. These parameters can
+               be changed on the client side according to actual resoure 
+               needs
+  </description>
+</property>
+
+<property>
+  <name>mapreduce.reduce.java.opts</name>
+  <value>-Xmx2560m</value>
+  <description>Java opts for the reduce container process. 
+               Default heap allocated for reduce container is about 80% of 
+               default ${mapreduce.reduce.memory.mb}. These parameters can
+               be changed on the client side according to actual resoure 
+               needs
+  </description>
+</property>
+
+<property>
+  <name>mapreduce.shuffle.port</name>
+  <value>7070</value>
+  <description></description>
+</property>
+
+<property>
+  <name>mapreduce.reduce.shuffle.parallelcopies</name>
+  <value>50</value>
+  <description>The default number of parallel transfers run by reduce
+  during the copy(shuffle) phase.
+  </description>
+</property>
+
+<!-- MR YARN Application properties -->
+<property>
+  <name>mapreduce.framework.name</name>
+  <value>yarn</value>
+  <description>The runtime framework for executing MapReduce jobs.
+  Can be one of local, classic or yarn.
+  </description>
+</property>
+
+<!-- jobhistory properties -->
+
+<property>
+  <name>mapreduce.jobhistory.intermediate-done-dir</name>
+  <value>/user/history/done_intermediate</value>
+  <description>Directory where history files are written by MapReduce jobs. Perms: 1777</description>
+</property>
+  
+<property>
+  <name>mapreduce.jobhistory.done-dir</name>
+  <value>/user/history/done</value>
+  <description>Directory where history files are moved when MR job is done and managed by
+  the MR JobHistory Server. Perms: 750
+  </description>
+</property>
+  
+<property>
+  <name>mapreduce.jobhistory.address</name>
+  <value>${mapreduce-historyserver}:10020</value>
+  <description>MapReduce JobHistory Server IPC host:port</description>
+</property>
+
+<property>
+  <name>mapreduce.jobhistory.webapp.address</name>
+  <value>${mapreduce-historyserver}:19888</value>
+  <description>MapReduce JobHistory Server Web UI host:port</description>
+</property>
+
+<!--  Required for Vaidya -->
+<property>
+    <name>mapreduce.vaidya.enabled</name>
+    <value>true</value>
+</property>
+<property>
+     <name>mapreduce.vaidya.jarfiles</name>
+     <value>/usr/lib/gphd/hadoop-mapreduce/hadoop-vaidya.jar</value>
+</property>
+<property>
+     <name>mapreduce.vaidya.testconf.file</name>
+     <value>/etc/gphd/hadoop/conf/postex_diagnosis_tests.xml</value>
+</property>
+
+</configuration>
+

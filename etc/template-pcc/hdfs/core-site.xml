@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+<configuration>
+
+<!-- file system properties -->
+
+<property>
+  <name>fs.defaultFS</name>
+  <value>hdfs://${namenode}:${dfs.port}</value>
+  <!--<value>hdfs://${nameservices}</value>-->
+  <description>The name of the default file system.  A URI whose
+  scheme and authority determine the FileSystem implementation.  The
+  uri's scheme determines the config property (fs.SCHEME.impl) naming
+  the FileSystem implementation class.  The uri's authority is used to
+  determine the host, port, etc. for a filesystem.</description>
+</property>
+
+<property>
+  <name>fs.trash.interval</name>
+  <value>1440</value>
+  <description>Number of minutes after which the checkpoint
+  gets deleted.  If zero, the trash feature is disabled.
+  This option may be configured both on the server and the
+  client. If trash is disabled server side then the client
+  side configuration is checked. If trash is enabled on the
+  server side then the value configured on the server is
+  used and the client configuration value is ignored.
+  </description>
+</property>
+
+<!-- i/o properties -->
+<property>
+  <name>io.compression.codecs</name>
+  <value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.SnappyCodec,org.apache.hadoop.io.compress.BZip2Codec</value>
+  <description>A comma-separated list of the compression codec classes that can
+  be used for compression/decompression. In addition to any classes specified
+  with this property (which take precedence), codec classes on the classpath
+  are discovered using a Java ServiceLoader.</description>
+</property>
+
+<property>
+  <name>io.file.buffer.size</name>
+  <value>131072</value>
+  <description>The size of buffer for use in sequence files.
+  The size of this buffer should probably be a multiple of hardware
+  page size (4096 on Intel x86), and it determines how much data is
+  buffered during read and write operations.</description>
+</property>
+
+<property>
+  <name>io.seqfile.local.dir</name>
+  <value>${datanode.disk.mount.points}/io/local</value>
+  <description>The local directory where sequence file stores intermediate
+  data files during merge.  May be a comma-separated list of
+  directories on different devices in order to spread disk i/o.
+  Directories that do not exist are ignored.
+  ** Multiple disk mount points are individually suffixed with "/io/local"
+     prefix to create multile directories. This happens on GPHDManager 
+     server before deployment.
+  </description>
+</property>
+
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/tmp/gphdtmp</value>
+  <description>At present this is needed by GPHD, so leave it as it is</description>
+</property>
+
+<!-- HAWQ Specific Property Overrides -->
+<property>
+    <name>ipc.client.connection.maxidletime</name>
+    <value>3600000</value>
+</property>
+<!-- End HAWQ Properties -->
+<!--
+ <property>
+   <name>ha.zookeeper.quorum</name>
+   <value>${zookeeper-server}:${zookeeper.client.port}</value>
+ </property>
+-->
+
+</configuration>
+
