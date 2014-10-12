@@ -1,8 +1,9 @@
 #!/bin/bash
 ###########################################################################
-##  Script to create  PHD users on Isilon.
-##  Must be run on Isilon system as root.  Input is the hdfs root directory.
+##  Script to create Hadoop users on Isilon.
+##  Must be run on Isilon system as root.
 ###########################################################################
+
 if [ -z "$BASH_VERSION" ] ; then
    # probably using zsh...
    echo "Script not run from bash -- reinvoking under bash"
@@ -11,8 +12,8 @@ if [ -z "$BASH_VERSION" ] ; then
 fi
 
 declare -a ERRORLIST=()
-REQUIRED_USERS="hdfs mapred hbase gpadmin hive yarn"
-REQUIRED_GROUPS="$REQUIRED_USERS hadoop"
+
+DIST=""
 STARTUID=501
 STARTGID=500
 ZONE="System"
@@ -26,7 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
+   echo "$0 --dist <cdh|phd> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
    echo "   defaults:  startgid=500, startuid=500, zone=System"
    exit 1
 }
@@ -115,6 +116,11 @@ fi
 while [ "z$1" != "z" ] ; do
     # echo "DEBUG:  Arg loop processing arg $1"
     case "$1" in
+      "--dist")
+             shift
+             DIST="$1"
+             echo "Info: Hadoop distribution:  $DIST"
+             ;;
       "--startuid")
              shift
              STARTUID=$1
@@ -130,15 +136,29 @@ while [ "z$1" != "z" ] ; do
              ZONE="$1"
              echo "Info: will put users in zone:  $ZONE"
              ;;
-      *)     echo "ERROR -- unknown arg $1"
+      *)     
+             echo "ERROR -- unknown arg $1"
              usage
              ;;
     esac
     shift;
 done
 
-hdfsroot=$(getHdfsRoot $ZONE)
-echo "Info: HDFS root:  $hdfsroot"
+case "$DIST" in
+    "cdh")
+        SUPER_USERS="hdfs mapred yarn"
+        SUPER_GROUPS="hadoop supergroup"
+        REQUIRED_USERS="$SUPER_USERS flume hbase hive hue impala oozie sample solr spark sqoop2"
+        REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS sqoop"
+        ;;
+    *)
+        echo "ERROR -- Invalid Hadoop distribution"
+        usage
+        ;;
+esac
+
+HDFSROOT=$(getHdfsRoot $ZONE)
+echo "Info: HDFS root:  $HDFSROOT"
 
 # set -x
 gid=$STARTGID
@@ -168,13 +188,26 @@ for user in $REQUIRED_USERS; do
        user=$(getUserFromUid $uid $ZONE)
        addError "UID $uid already in use by user $user in zone $ZONE"
     else
-       isi auth users create $user --uid $uid --primary-group $user --zone $ZONE --provider local --home-directory $hdfsroot/user/$user
+       isi auth users create $user --uid $uid --primary-group $user --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user
        [ $? -ne 0 ] && addError "Could not create user $user with uid $uid in zone $ZONE"
-       isi auth groups modify hadoop --add-user $user --zone $ZONE
-       [ $? -ne 0 ] && addError "Could not add user $user to hadoop group in zone $ZONE"
     fi
     uid=$(( $uid + 1 ))
 done
+
+for user in $SUPER_USERS; do
+    for group in $SUPER_GROUPS; do
+       isi auth groups modify $group --add-user $user --zone $ZONE
+       [ $? -ne 0 ] && addError "Could not add user $user to $group group in zone $ZONE"
+       done
+done
+
+# Special cases
+case "$DIST" in
+    "cdh")
+        isi auth groups modify sqoop --add-user sqoop2 --zone $ZONE
+        [ $? -ne 0 ] && addError "Could not add user sqoop2 to sqoop group in zone $ZONE"
+        ;;
+esac
 
 ### Deliver Results
 if [ "${#ERRORLIST[@]}" != "0" ] ; then
@@ -184,10 +217,10 @@ if [ "${#ERRORLIST[@]}" != "0" ] ; then
       echo "*  ERROR:  ${ERRORLIST[$i]}"
       i=$(( $i + 1 ))
    done
-   fatal "ERRORS FOUND making PHD users in zone $ZONE -- please fix before continuing"
+   fatal "ERRORS FOUND making Hadoop users in zone $ZONE -- please fix before continuing"
    exit 1
 else
-   echo "SUCCESS -- PHD users created successfully!"
+   echo "SUCCESS -- Hadoop users created successfully!"
 fi
 
 echo "Done!"

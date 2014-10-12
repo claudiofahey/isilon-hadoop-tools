@@ -100,11 +100,11 @@ hbaseDirs=("755#hdfs#hadoop#/apps" \
 "775#hbase#hadoop#/apps/hbase/data" \
 "711#hbase#hadoop#/apps/hbase/staging")
 
-hiveDirs=("#755#hdfs#hadoop#/hive#" \
+hiveDirs=("755#hdfs#hadoop#/hive#" \
 "755#hdfs#hadoop#/hive/gphd#" \
 "1777#hive#hadoop#/hive/gphd/warehouse#")
 
-hawqDirs=("#770#gpadmin#hadoop#/hawq_data#")
+hawqDirs=("770#gpadmin#hadoop#/hawq_data#")
 
 if [ "`uname`" != "Isilon OneFS" ]; then
    fatal "Script must be run on Isilon cluster as root."
