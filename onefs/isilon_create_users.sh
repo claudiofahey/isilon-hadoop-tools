@@ -14,8 +14,8 @@ fi
 declare -a ERRORLIST=()
 
 DIST=""
-STARTUID=501
-STARTGID=500
+STARTUID=1000
+STARTGID=1000
 ZONE="System"
 
 #set -x
@@ -27,8 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|phd> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
-   echo "   defaults:  startgid=500, startuid=500, zone=System"
+   echo "$0 --dist <cdh|hwx|phd> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
    exit 1
 }
 
@@ -123,7 +122,7 @@ while [ "z$1" != "z" ] ; do
              ;;
       "--startuid")
              shift
-             STARTUID=$1
+             STARTUID="$1"
              echo "Info: users will start at UID $STARTUID"
              ;;
       "--startgid")
@@ -150,6 +149,19 @@ case "$DIST" in
         SUPER_GROUPS="hadoop supergroup"
         REQUIRED_USERS="$SUPER_USERS flume hbase hive hue impala oozie sample solr spark sqoop2"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS sqoop"
+        ;;
+    "hwx")
+        # See http://docs.hortonworks.com/HDPDocuments/Ambari-1.6.0.0/bk_ambari_reference/content/Defining-service-users-groups-2x.html
+        SUPER_USERS="hdfs mapred yarn hbase storm falcon"
+        SUPER_GROUPS="hadoop"
+        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa"
+        REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
+        ;;
+    "phd")
+        SUPER_USERS="hdfs mapred hbase gpadmin hive yarn"
+        SUPER_GROUPS="hadoop"
+        REQUIRED_USERS="$SUPER_USERS"
+        REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     *)
         echo "ERROR -- Invalid Hadoop distribution"

@@ -26,7 +26,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|phd> [--zone <ZONE>] [--fixperm]"
+   echo "$0 --dist <cdh|hwx|phd> [--zone <ZONE>] [--fixperm]"
    exit 1
 }
 
@@ -61,7 +61,8 @@ function fixperm() {
    if [ "z$1" == "z" ] ; then
       echo "ERROR -- function fixperm needs directory owner group perm as an argument"
    else
-      isi_run -z $ZONEID chown $2:$3 $1
+      isi_run -z $ZONEID chown $2 $1
+      isi_run -z $ZONEID chown :$3 $1
       isi_run -z $ZONEID chmod $4 $1
    fi
 }
@@ -116,21 +117,60 @@ declare -a dirList
 
 case "$DIST" in
     "cdh")
+        # Format is: dirname#perm#owner#group
         dirList=(\
-            "755#hdfs#hadoop##" \
-            "1777#hdfs#supergroup#/tmp" \
-            "755#hdfs#supergroup#/user" \
-            "755#hbase#hbase#/hbase" \
-            "777#mapred#hadoop#/user/history" \
-            "1777#mapred#hadoop#/tmp/logs" \
-            "775#oozie#oozie#/user/oozie" \
-            "1s775#hive#hive#/user/hive" \
-            "1777#hive#hive#/user/hive/warehouse" \
-            "775#solr#solr#/solr" \
-            "775#sqoop2#sqoop#/user/sqoop2" \
-            "751#spark#spark#/user/spark" \
-            "1777#spark#spark#/user/spark/applicationHistory" \
-            "775#impala#impala#/user/impala" \
+            "/#755#hdfs#hadoop" \
+            "/hbase#755#hbase#hbase" \
+            "/solr#775#solr#solr" \
+            "/tmp#1777#hdfs#supergroup" \
+            "/tmp/logs#1777#mapred#hadoop" \
+            "/user#755#hdfs#supergroup" \
+            "/user/history#777#mapred#hadoop" \
+            "/user/hive#775#hive#hive" \
+            "/user/hive/warehouse#1777#hive#hive" \
+            "/user/hue#755#hue#hue" \
+            "/user/hue/.cloudera_manager_hive_metastore_canary#777#hue#hue" \
+            "/user/impala#775#impala#impala" \
+            "/user/oozie#775#oozie#oozie" \
+            "/user/spark#755#spark#spark" \
+            "/user/spark/applicationHistory#1777#spark#spark" \
+            "/user/sqoop2#775#sqoop2#sqoop" \
+        )
+        ;;
+    "hwx")
+        # Format is: dirname#perm#owner#group
+        dirList=(\
+            "/#755#hdfs#hadoop" \
+            "/tmp#1777#hdfs#hdfs" \
+            "/user#755#hdfs#hdfs" \
+            "/user/ambari-qa#770#ambari-qa#hdfs" \
+            "/user/hcat#755#hcat#hdfs" \
+            "/user/hive#700#hive#hdfs" \
+            "/user/oozie#775#oozie#hdfs" \
+        )
+        ;;
+    "phd")
+        # Format is: dirname#perm#owner#group
+        dirList=(\
+            "/#755#hdfs#hadoop" \
+            "/apps#755#hdfs#hadoop#" \
+            "/apps/hbase#755#hdfs#hadoop" \
+            "/apps/hbase/data#775#hbase#hadoop" \
+            "/apps/hbase/staging#711#hbase#hadoop" \
+            "/hawq_data#770#gpadmin#hadoop"
+            "/hive#755#hdfs#hadoop" \
+            "/hive/gphd#755#hdfs#hadoop" \
+            "/hive/gphd/warehouse#1777#hive#hadoop" \
+            "/mapred#755#mapred#hadoop" \
+            "/mapred/system#700#mapred#hadoop" \
+            "/tmp#777#hdfs#hadoop" \
+            "/tmp/gphdtmp#777#hdfs#hadoop" \
+            "/user#777#hdfs#hadoop" \
+            "/user/history#777#mapred#hadoop" \
+            "/user/history/done#777#mapred#hadoop" \
+            "/user/history/done_intermediate#1777#mapred#hadoop" \
+            "/yarn#755#hdfs#hadoop" \
+            "/yarn/apps#777#mapred#hadoop" \
         )
         ;;
     *)
@@ -160,18 +200,18 @@ prefix=0
 
 for direntry in ${dirList[*]}; do
    read -a specs <<<"$(echo $direntry | sed 's/#/ /g')"
-   # echo "DEBUG: specs dirname ${specs[3]}; owner ${specs[1]}; group ${specs[2]}; perm ${specs[0]}"
-   ifspath=$HDFSROOT${specs[3]}
+   echo "DEBUG: specs dirname ${specs[0]}; perm ${specs[1]}; owner ${specs[2]}; group ${specs[3]}"
+   ifspath=$HDFSROOT${specs[0]}
    # echo "DEBUG:  ifspath = $ifspath"
 
    #  Get info about directory
    if [ ! -d $ifspath ] ; then
       # echo "DEBUG:  making directory $ifspath"
       makedir $ifspath
-      fixperm $ifspath ${specs[1]} ${specs[2]} ${specs[0]}
+      fixperm $ifspath ${specs[2]} ${specs[3]} ${specs[1]}
    elif [ "$FIXPERM" == "y" ] ; then
       # echo "DEBUG:  fixing directory perm $ifspath"
-      fixperm $ifspath ${specs[1]} ${specs[2]} ${specs[0]}
+      fixperm $ifspath ${specs[2]} ${specs[3]} ${specs[1]}
    else
       warn "Directory $ifspath exists but no --fixperm not specified"
    fi
