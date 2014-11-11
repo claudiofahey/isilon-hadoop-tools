@@ -2,8 +2,6 @@
 # Perform post-processing after VMware Big Data Extensions provisions a new cluster.
 # Written by Claudio Fahey (claudio.fahey@emc.com)
 
-app_ver = '0.3'
-
 import subprocess
 import sys
 import os
@@ -47,14 +45,20 @@ def load_json_from_file(filename):
 def serengeti_auth(serurl, username, password):
     cj = cookielib.CookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-    # Username is the base64 encoding of actual username
-    encoded_username = username.encode('base64').strip()
-    data = urllib.urlencode({'j_username': encoded_username, 'j_password': password})
-    r = opener.open(serurl + "/j_spring_security_check", data)
+    try:
+        # First try using non-encoded username used by BDE 2.1
+        data = urllib.urlencode({'j_username': username, 'j_password': password})
+        r = opener.open(serurl + "/j_spring_security_check", data)
+    except:
+        # If that fails, use the base64 encoding of actual username used by BDE 2.0
+        encoded_username = username.encode('base64').strip()
+        data = urllib.urlencode({'j_username': encoded_username, 'j_password': password})
+        r = opener.open(serurl + "/j_spring_security_check", data)
     return opener
 
 def serengeti_api_read(serurl, urlsuffix, opener=None, data=None):
-    r = opener.open(serurl + '/api' + urlsuffix)
+    url = serurl + '/api' + urlsuffix
+    r = opener.open(url)
     return r.read()
 
 def configure_ssh(host, username, password):
@@ -140,7 +144,7 @@ def configure_node_phase_2(node, config, username='root', password='none'):
     return node
     
 def main():
-    print('bde_cluster_post_deploy.py version ' + app_ver + '\n')
+    print('bde_cluster_post_deploy.py\n')
 
     config_filename = sys.argv[1]
     config = load_json_from_file(config_filename)
