@@ -1,7 +1,7 @@
 #!/bin/bash
 
-gid_base=601
-uid_base=601
+gid_base=1000
+uid_base=1000
 
 #for user in hdfs mapred hbase hive yarn oozie sentry impala spark hue sqoop2 solr sqoop httpfs llama zookeper flume sample; do    
 #    userdel -f -r $user

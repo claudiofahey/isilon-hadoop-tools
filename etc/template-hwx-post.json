@@ -1,0 +1,22 @@
+{
+    "ser_host":             "https://bde.lab.example.com:8443",
+    "ser_username":         "root",
+    "ser_password":         "your_vsphere_password",
+    "skip_configure_network": false,
+    "dhcp_domain":          ".lab.example.com",
+    "cluster_name":         "mycluster1",
+    "host_file_name":       "etc/mycluster1-hosts.txt",
+    "node_password":        "your_vm_root_password",
+    "name_filter_regex":    "",
+    "tools_root":           "/mnt/scripts/isilon-hadoop-tools",
+    "nfs_mounts": [
+        {"mount_point": "/mnt/scripts", "path": "subnet0-pool0.isiloncluster1.lab.example.com:/ifs/isiloncluster1/scripts"}
+        ],
+    "ssh_commands": [
+        "/mnt/scripts/isilon-hadoop-tools/bde/mount_data_directories.pl",
+        "cp -Rv /mnt/scripts/isilon-hadoop-tools/bde/centos6.4-overwrite/* /",
+        "sysctl -p ; true",
+        "echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag"
+        ]
+}
+
