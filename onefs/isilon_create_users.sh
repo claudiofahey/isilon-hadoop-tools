@@ -27,7 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
+   echo "$0 --dist <cdh|hwx|phd|phd3> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
    exit 1
 }
 
@@ -161,6 +161,12 @@ case "$DIST" in
         SUPER_USERS="hdfs mapred hbase gpadmin hive yarn"
         SUPER_GROUPS="hadoop"
         REQUIRED_USERS="$SUPER_USERS"
+        REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
+        ;;
+    "phd3")
+        SUPER_USERS="hdfs mapred hbase gpadmin hive yarn"
+        SUPER_GROUPS="hadoop"
+        REQUIRED_USERS="$SUPER_USERS tez hcat oozie zookeeper ambari-qa pxf knox"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     *)
