@@ -166,7 +166,7 @@ case "$DIST" in
     "phd3")
         SUPER_USERS="hdfs mapred hbase gpadmin hive yarn"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS tez hcat oozie zookeeper ambari-qa pxf knox"
+        REQUIRED_USERS="$SUPER_USERS tez hcat oozie zookeeper ambari-qa pxf knox spark hue"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     *)

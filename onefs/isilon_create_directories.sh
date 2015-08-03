@@ -177,8 +177,6 @@ case "$DIST" in
         # Format is: dirname#perm#owner#group
         dirList=(\
             "/#755#hdfs#hadoop" \
-            "/tmp#1777#hdfs#hdfs" \
-            "/tmp/gphdtmp#777#hdfs#hadoop" \
             "/app-logs#777#yarn#hadoop#" \
             "/apps#755#hdfs#hadoop#" \
             "/apps/hbase#755#hdfs#hadoop" \
@@ -191,6 +189,8 @@ case "$DIST" in
             "/mapred#755#mapred#hadoop" \
             "/mapred/system#700#mapred#hadoop" \
             "/mr-history#755#mapred#hadoop" \
+            "/tmp#1777#hdfs#hdfs" \
+            "/tmp/gphdtmp#777#hdfs#hadoop" \
             "/user#777#hdfs#hadoop" \
             "/user/ambari-qa#770#ambari-qa#hdfs" \
             "/user/gpadmin#700#gpadmin#gpadmin" \
@@ -200,8 +200,11 @@ case "$DIST" in
             "/user/history/done#777#mapred#hadoop" \
             "/user/history/done_intermediate#1777#mapred#hadoop" \
             "/user/hive#700#hive#hdfs" \
+            "/user/hue#755#hue#hue" \
             "/user/mapred#700#mapred#mapred" \
             "/user/oozie#775#oozie#hdfs" \
+            "/user/spark#755#spark#spark" \
+            "/user/spark/applicationHistory#1777#spark#spark" \
             "/user/tez#700#tez#tez" \
             "/user/yarn#700#yarn#yarn" \
             "/user/zookeeper#700#zookeeper#zookeeper" \
