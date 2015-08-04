@@ -26,7 +26,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd> [--zone <ZONE>] [--fixperm]"
+   echo "$0 --dist <cdh|hwx|phd|phd3> [--zone <ZONE>] [--fixperm]"
    exit 1
 }
 
@@ -169,6 +169,45 @@ case "$DIST" in
             "/user/history#777#mapred#hadoop" \
             "/user/history/done#777#mapred#hadoop" \
             "/user/history/done_intermediate#1777#mapred#hadoop" \
+            "/yarn#755#hdfs#hadoop" \
+            "/yarn/apps#777#mapred#hadoop" \
+        )
+        ;;
+    "phd3")
+        # Format is: dirname#perm#owner#group
+        dirList=(\
+            "/#755#hdfs#hadoop" \
+            "/app-logs#777#yarn#hadoop#" \
+            "/apps#755#hdfs#hadoop#" \
+            "/apps/hbase#755#hdfs#hadoop" \
+            "/apps/hbase/data#775#hbase#hadoop" \
+            "/apps/hbase/staging#711#hbase#hadoop" \
+            "/hawq_data#770#gpadmin#hadoop"
+            "/hive#755#hdfs#hadoop" \
+            "/hive/gphd#755#hdfs#hadoop" \
+            "/hive/gphd/warehouse#1777#hive#hadoop" \
+            "/mapred#755#mapred#hadoop" \
+            "/mapred/system#700#mapred#hadoop" \
+            "/mr-history#755#mapred#hadoop" \
+            "/tmp#1777#hdfs#hdfs" \
+            "/tmp/gphdtmp#777#hdfs#hadoop" \
+            "/user#777#hdfs#hadoop" \
+            "/user/ambari-qa#770#ambari-qa#hdfs" \
+            "/user/gpadmin#700#gpadmin#gpadmin" \
+            "/user/hbase#700#hbase#hbase" \
+            "/user/hcat#755#hcat#hdfs" \
+            "/user/history#777#mapred#hadoop" \
+            "/user/history/done#777#mapred#hadoop" \
+            "/user/history/done_intermediate#1777#mapred#hadoop" \
+            "/user/hive#700#hive#hdfs" \
+            "/user/hue#755#hue#hue" \
+            "/user/mapred#700#mapred#mapred" \
+            "/user/oozie#775#oozie#hdfs" \
+            "/user/spark#755#spark#spark" \
+            "/user/spark/applicationHistory#1777#spark#spark" \
+            "/user/tez#700#tez#tez" \
+            "/user/yarn#700#yarn#yarn" \
+            "/user/zookeeper#700#zookeeper#zookeeper" \
             "/yarn#755#hdfs#hadoop" \
             "/yarn/apps#777#mapred#hadoop" \
         )
