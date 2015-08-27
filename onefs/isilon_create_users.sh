@@ -151,10 +151,10 @@ case "$DIST" in
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS sqoop"
         ;;
     "hwx")
-        # See http://docs.hortonworks.com/HDPDocuments/Ambari-1.6.0.0/bk_ambari_reference/content/Defining-service-users-groups-2x.html
+        # See http://docs.hortonworks.com/HDPDocuments/Ambari-2.0.2.0/bk_ambari_reference_guide/bk_ambari_reference_guide-20150413.pdf#page=15
         SUPER_USERS="hdfs mapred yarn hbase storm falcon"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa"
+        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     "phd")
