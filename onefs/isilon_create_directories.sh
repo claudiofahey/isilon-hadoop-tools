@@ -26,7 +26,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3> [--zone <ZONE>] [--fixperm]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi4.0> [--zone <ZONE>] [--fixperm]"
    exit 1
 }
 
@@ -210,6 +210,40 @@ case "$DIST" in
             "/user/zookeeper#700#zookeeper#zookeeper" \
             "/yarn#755#hdfs#hadoop" \
             "/yarn/apps#777#mapred#hadoop" \
+        )
+        ;;
+    "bi4.0")
+        # Format is: dirname#perm#owner#group
+        dirList=(\
+            "/#755#hdfs#hadoop" \
+            "/tmp#1777#hdfs#hadoop" \
+            "/user#755#hdfs#hadoop" \
+            "/iop#755#hdfs#hadoop" \
+            "/apps#755#hdfs#hadoop" \
+            "/app-logs#755#hdfs#hadoop" \
+            "/mapred#755#hdfs#hadoop" \
+            "/mr-history#755#hdfs#hadoop" \
+            "/user/ambari-qa#770#ambari-qa#hadoop" \
+            "/user/hcat#775#hcat#hadoop" \
+            "/user/hive#775#hive#hadoop" \
+            "/user/oozie#775#oozie#hadoop" \
+            "/user/yarn#775#yarn#hadoop" \
+            "/user/zookeeper#775#zookeeper#hadoop" \
+            "/user/uiuser#775#uiuser#hadoop" \
+            "/user/spark#775#spark#hadoop" \
+            "/user/sqoop#775#sqoop#hadoop" \
+            "/user/solr#775#solr#hadoop" \
+            "/user/nagios#775#nagios#hadoop" \
+            "/user/bigsheets#775#bigsheets#hadoop" \
+            "/user/bigsql#775#bigsql#hadoop" \
+            "/user/dsmadmin#775#dsmadmin#hadoop" \
+            "/user/flume#775#flume#hadoop" \
+            "/user/hbase#775#hbase#hadoop" \
+            "/user/knox#775#knox#hadoop" \
+            "/user/mapred#775#mapred#hadoop" \
+            "/user/bigr#775#bigr#hadoop" \
+            "/user/bighome#775#bighome#hadoop" \
+            "/user/tauser#775#tauser#hadoop" \
         )
         ;;
     *)
