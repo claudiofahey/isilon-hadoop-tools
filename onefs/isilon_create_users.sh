@@ -27,7 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi4.0> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
    exit 1
 }
 
@@ -169,8 +169,14 @@ case "$DIST" in
         REQUIRED_USERS="$SUPER_USERS tez hcat oozie zookeeper ambari-qa pxf knox spark hue"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
+    "bi4.0")
+        SUPER_USERS="hdfs hadoop mapred hbase knox uiuser dsmadmin bigsheets ambari-qa rrdcached hive yarn hcat bigsql tauser bigr flume nagios solr spark sqoop zookeeper oozie bighome"
+        SUPER_GROUPS="hadoop"
+        REQUIRED_USERS="$SUPER_USERS"
+        REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
+        ;;
     *)
-        echo "ERROR -- Invalid Hadoop distribution"
+    echo "ERROR -- Invalid Hadoop distribution"
         usage
         ;;
 esac
@@ -224,6 +230,12 @@ case "$DIST" in
     "cdh")
         isi auth groups modify sqoop --add-user sqoop2 --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user sqoop2 to sqoop group in zone $ZONE"
+        ;;
+    "bi4.0")
+        isi auth groups modify users --add-user hive --zone $ZONE
+        [ $? -ne 0 ] && addError "Could not add user hive to users group in zone $ZONE"
+        isi auth groups modify hcat --add-user hive --zone $ZONE
+        [ $? -ne 0 ] && addError "Could not add user hive to hcat group in zone $ZONE"
         ;;
 esac
 
