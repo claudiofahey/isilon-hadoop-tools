@@ -56,7 +56,7 @@ function makedir() {
       mkdir $1
    fi
 }
-   
+
 function fixperm() {
    if [ "z$1" == "z" ] ; then
       echo "ERROR -- function fixperm needs directory owner group perm as an argument"
@@ -69,16 +69,21 @@ function fixperm() {
 
 function getHdfsRoot() {
     local hdfsroot
-    hdfsroot=$(isi zone zones view $1 | grep "HDFS Root Directory:" | cut -f2 -d :)
+    #Check for Version to process correct syntax - isirad
+    if [ "`isi version|cut -c 15`" -lt 8 ]; then
+      hdfsroot=$(isi zone zones view $1 | grep "HDFS Root Directory:" | cut -f2 -d :)
+    else
+      hdfsroot=$(isi hdfs settings view --zone=$1 | grep "Root Directory:" | cut -f2 -d :)
+    fi
     echo $hdfsroot
 }
- 
+
 function getAccessZoneId() {
     local zoneid
     hdfsroot=$(isi zone zones view $1 | grep "Zone ID:" | cut -f2 -d :)
     echo $hdfsroot
 }
-   
+
 if [ "`uname`" != "Isilon OneFS" ]; then
    fatal "Script must be run on Isilon cluster as root."
 fi
@@ -87,8 +92,8 @@ if [ "$USER" != "root" ] ; then
    fatal "Script must be run as root user."
 fi
 
-# Parse Command-Line Args       
-# Allow user to specify what functions to check 
+# Parse Command-Line Args
+# Allow user to specify what functions to check
 while [ "z$1" != "z" ] ; do
     # echo "DEBUG:  Arg loop processing arg $1"
     case "$1" in
@@ -300,9 +305,8 @@ if [ "${#ERRORLIST[@]}" != "0" ] ; then
    done
    fatal "ERRORS FOUND making Hadoop admin directory structure -- please fix before continuing"
    exit 1
-else 
+else
    echo "SUCCESS -- Hadoop admin directory structure exists and has correct ownership and permissions"
 fi
 
 echo "Done!"
-

@@ -96,7 +96,12 @@ function getGroupFromGid() {
 
 function getHdfsRoot() {
     local hdfsroot
-    hdfsroot=$(isi zone zones view $1 | grep "HDFS Root Directory:" | cut -f2 -d :)
+    #Check for Version to process correct syntax - isirad
+    if [ "`isi version|cut -c 15`" -lt 8 ]; then
+       hdfsroot=$(isi zone zones view $1 | grep "HDFS Root Directory:" | cut -f2 -d :)
+    else
+       hdfsroot=$(isi hdfs settings view --zone=$1 | grep "Root Directory:" | cut -f2 -d :)
+    fi
     echo $hdfsroot
 }
 
@@ -135,7 +140,7 @@ while [ "z$1" != "z" ] ; do
              ZONE="$1"
              echo "Info: will put users in zone:  $ZONE"
              ;;
-      *)     
+      *)
              echo "ERROR -- unknown arg $1"
              usage
              ;;
@@ -188,7 +193,7 @@ echo "Info: HDFS root:  $HDFSROOT"
 gid=$STARTGID
 for group in $REQUIRED_GROUPS; do
     # echo "DEBUG:  GID=$gid"
-    if groupExists $group $ZONE ; then 
+    if groupExists $group $ZONE ; then
        gid=$(getGidFromGroup $group $ZONE)
        addError "Group $group already exists at gid $gid in zone $ZONE"
     elif gidInUse $gid $ZONE ; then
@@ -205,7 +210,7 @@ done
 uid=$STARTUID
 for user in $REQUIRED_USERS; do
     # echo "DEBUG:  UID=$uid"
-    if userExists $user $ZONE ; then 
+    if userExists $user $ZONE ; then
        uid=$(getUidFromUser $user $ZONE)
        addError "User $user already exists at uid $uid in zone $ZONE"
     elif uidInUse $uid $ZONE ; then
@@ -254,4 +259,3 @@ else
 fi
 
 echo "Done!"
-
