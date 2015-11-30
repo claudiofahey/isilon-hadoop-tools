@@ -177,7 +177,7 @@ case "$DIST" in
     "bi")
         SUPER_USERS="hdfs hadoop mapred hbase knox uiuser dsmadmin bigsheets ambari-qa rrdcached hive yarn hcat bigsql tauser bigr flume nagios solr spark sqoop zookeeper oozie bighome"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS"
+        REQUIRED_USERS="$SUPER_USERS anonymous"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     *)
