@@ -159,7 +159,7 @@ case "$DIST" in
         # See http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_ambari_reference_guide/content/_defining_service_users_and_groups_for_a_hdp_2x_stack.html
         SUPER_USERS="hdfs mapred yarn hbase storm falcon"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark mahout ranger kms atlas"
+        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark mahout ranger kms atlas ams"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     "phd")
@@ -177,7 +177,7 @@ case "$DIST" in
     "bi")
         SUPER_USERS="hdfs hadoop mapred hbase knox uiuser dsmadmin bigsheets ambari-qa rrdcached hive yarn hcat bigsql tauser bigr flume nagios solr spark sqoop zookeeper oozie bighome"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS anonymous"
+        REQUIRED_USERS="$SUPER_USERS anonymous ams"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     *)
