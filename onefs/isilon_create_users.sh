@@ -241,6 +241,8 @@ case "$DIST" in
         [ $? -ne 0 ] && addError "Could not add user hive to users group in zone $ZONE"
         isi auth groups modify hcat --add-user hive --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to hcat group in zone $ZONE"
+        isi auth groups modify knox --add-user kafka --zone $ZONE
+        [ $? -ne 0 ] && addError "Could not add user kafka to knox group in zone $ZONE"
         ;;
 esac
 
