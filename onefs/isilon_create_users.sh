@@ -27,7 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3|bi4.0> --startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
    exit 1
 }
 
@@ -159,7 +159,7 @@ case "$DIST" in
         # See http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_ambari_reference_guide/content/_defining_service_users_and_groups_for_a_hdp_2x_stack.html
         SUPER_USERS="hdfs mapred yarn hbase storm falcon"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark mahout ranger kms atlas"
+        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark mahout ranger kms atlas ams"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     "phd")
@@ -174,10 +174,10 @@ case "$DIST" in
         REQUIRED_USERS="$SUPER_USERS tez hcat oozie zookeeper ambari-qa pxf knox spark hue"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
-    "bi4.0")
+    "bi")
         SUPER_USERS="hdfs hadoop mapred hbase knox uiuser dsmadmin bigsheets ambari-qa rrdcached hive yarn hcat bigsql tauser bigr flume nagios solr spark sqoop zookeeper oozie bighome"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS"
+        REQUIRED_USERS="$SUPER_USERS anonymous ams"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     *)
@@ -236,11 +236,13 @@ case "$DIST" in
         isi auth groups modify sqoop --add-user sqoop2 --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user sqoop2 to sqoop group in zone $ZONE"
         ;;
-    "bi4.0")
+    "bi")
         isi auth groups modify users --add-user hive --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to users group in zone $ZONE"
         isi auth groups modify hcat --add-user hive --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to hcat group in zone $ZONE"
+        isi auth groups modify knox --add-user kafka --zone $ZONE
+        [ $? -ne 0 ] && addError "Could not add user kafka to knox group in zone $ZONE"
         ;;
 esac
 

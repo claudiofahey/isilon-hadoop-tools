@@ -26,7 +26,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3|bi4.0> [--zone <ZONE>] [--fixperm]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--zone <ZONE>] [--fixperm]"
    exit 1
 }
 
@@ -217,7 +217,7 @@ case "$DIST" in
             "/yarn/apps#777#mapred#hadoop" \
         )
         ;;
-    "bi4.0")
+    "bi")
         # Format is: dirname#perm#owner#group
         dirList=(\
             "/#755#hdfs#hadoop" \
