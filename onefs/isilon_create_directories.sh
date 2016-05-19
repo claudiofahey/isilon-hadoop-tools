@@ -148,6 +148,9 @@ case "$DIST" in
             "/#755#hdfs#hadoop" \
             "/tmp#1777#hdfs#hdfs" \
             "/user#755#hdfs#hdfs" \
+            "/apps/hbase#755#hdfs#hadoop" \
+            "/apps/hbase/data#775#hbase#hadoop" \
+            "/apps/hbase/staging#711#hbase#hadoop" \
             "/user/ambari-qa#770#ambari-qa#hdfs" \
             "/user/hcat#755#hcat#hdfs" \
             "/user/hive#700#hive#hdfs" \
