@@ -146,11 +146,14 @@ case "$DIST" in
         # Format is: dirname#perm#owner#group
         dirList=(\
             "/#755#hdfs#hadoop" \
+            "/app-logs#777#yarn#hadoop#" \
             "/tmp#1777#hdfs#hdfs" \
             "/user#755#hdfs#hdfs" \
+            "/apps#755#hdfs#hadoop#" \
             "/apps/hbase#755#hdfs#hadoop" \
             "/apps/hbase/data#775#hbase#hadoop" \
             "/apps/hbase/staging#711#hbase#hadoop" \
+            "/mapred#755#mapred#hadoop" \
             "/user/ambari-qa#770#ambari-qa#hdfs" \
             "/user/hcat#755#hcat#hdfs" \
             "/user/hive#700#hive#hdfs" \
