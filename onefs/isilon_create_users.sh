@@ -152,7 +152,7 @@ case "$DIST" in
     "cdh")
         SUPER_USERS="hdfs mapred yarn"
         SUPER_GROUPS="hadoop supergroup"
-        REQUIRED_USERS="$SUPER_USERS flume hbase hive hue impala oozie sample solr spark sqoop2"
+        REQUIRED_USERS="$SUPER_USERS flume hbase hive hue impala oozie sample solr spark sqoop2 anonymous nothdfs cmjobuser systest"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS sqoop"
         ;;
     "hwx")
