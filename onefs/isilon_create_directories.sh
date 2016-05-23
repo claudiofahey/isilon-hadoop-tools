@@ -129,6 +129,7 @@ case "$DIST" in
             "/solr#775#solr#solr" \
             "/tmp#1777#hdfs#supergroup" \
             "/tmp/logs#1777#mapred#hadoop" \
+            "/tmp/hive#777#hive#supergroup" \
             "/user#755#hdfs#supergroup" \
             "/user/history#777#mapred#hadoop" \
             "/user/hive#775#hive#hive" \
@@ -137,9 +138,11 @@ case "$DIST" in
             "/user/hue/.cloudera_manager_hive_metastore_canary#777#hue#hue" \
             "/user/impala#775#impala#impala" \
             "/user/oozie#775#oozie#oozie" \
-            "/user/spark#755#spark#spark" \
+            "/user/flume#775#flume#flume" \
+            "/user/spark#751#spark#spark" \
             "/user/spark/applicationHistory#1777#spark#spark" \
             "/user/sqoop2#775#sqoop2#sqoop" \
+            "/solr#775#solr#solr" \
         )
         ;;
     "hwx")
