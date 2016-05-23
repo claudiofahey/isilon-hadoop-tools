@@ -147,17 +147,29 @@ case "$DIST" in
         dirList=(\
             "/#755#hdfs#hadoop" \
             "/app-logs#777#yarn#hadoop#" \
+            "/app-logs/ambari-qa#770#ambari-qa#hadoop#" \
+            "/app-logs/ambari-qa/logs#770#ambari-qa#hadoop#" \
             "/tmp#1777#hdfs#hdfs" \
-            "/user#755#hdfs#hdfs" \
             "/apps#755#hdfs#hadoop#" \
+            "/apps/falcon#777#falcon#hdfs#" \
+            "/apps/accumulo/#750#accumulo#hadoop#" \
             "/apps/hbase#755#hdfs#hadoop" \
             "/apps/hbase/data#775#hbase#hadoop" \
             "/apps/hbase/staging#711#hbase#hadoop" \
+            "/apps/hive#755#hdfs#hdfs" \
+            "/apps/hive/warehouse#777#hive#hdfs" \
+            "/apps/tez#755#tez#hdfs" \
+            "/apps/webhcat#755#hcat#hdfs" \
             "/mapred#755#mapred#hadoop" \
+            "/mapred/system#755#mapred#hadoop" \
+            "/user#755#hdfs#hdfs" \
             "/user/ambari-qa#770#ambari-qa#hdfs" \
             "/user/hcat#755#hcat#hdfs" \
+            "/user/hdfs#755#hdfs#hdfs" \
             "/user/hive#700#hive#hdfs" \
+            "/user/hue#755#hue#hue" \
             "/user/oozie#775#oozie#hdfs" \
+            "/user/yarn#755#yarn#hdfs" \
         )
         ;;
     "phd")

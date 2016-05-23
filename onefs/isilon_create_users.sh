@@ -157,9 +157,9 @@ case "$DIST" in
         ;;
     "hwx")
         # See http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_ambari_reference_guide/content/_defining_service_users_and_groups_for_a_hdp_2x_stack.html
-        SUPER_USERS="hdfs mapred yarn hbase storm falcon"
+        SUPER_USERS="hdfs mapred yarn hbase storm falcon tracer"
         SUPER_GROUPS="hadoop"
-        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark mahout ranger kms atlas ams tracer kafka"
+        REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark mahout ranger kms atlas ams kafka"
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS"
         ;;
     "phd")
