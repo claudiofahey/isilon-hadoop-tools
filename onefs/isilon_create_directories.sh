@@ -54,7 +54,7 @@ function makedir() {
    if [ "z$1" == "z" ] ; then
       echo "ERROR -- function makedir needs directory as an argument"
    else
-      mkdir $1
+      mkdir -p $1
    fi
 }
 
