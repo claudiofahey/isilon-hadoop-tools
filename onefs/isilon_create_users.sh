@@ -223,7 +223,7 @@ for user in $REQUIRED_USERS; do
        user=$(getUserFromUid $uid $ZONE)
        addError "UID $uid already in use by user $user$CLUSTERNAME in zone $ZONE"
     else
-       isi auth users create $user$CLUSTERNAME --uid $uid --primary-group $user$CLUSTERNAME --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user
+       isi auth users create $user$CLUSTERNAME --uid $uid --primary-group $user$CLUSTERNAME --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user$CLUSTERNAME
        [ $? -ne 0 ] && addError "Could not create user $user$CLUSTERNAME with uid $uid in zone $ZONE"
     fi
     uid=$(( $uid + 1 ))
