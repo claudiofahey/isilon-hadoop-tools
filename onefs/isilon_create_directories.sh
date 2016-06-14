@@ -16,7 +16,7 @@ declare -a ERRORLIST=()
 DIST=""
 FIXPERM="n"
 ZONE="System"
-CLUSTERNAME=""
+CLUSTER_NAME=""
 
 #set -x
 
@@ -67,10 +67,6 @@ function fixperm() {
       chown $uid $1
       chown :$gid $1
       chmod $4 $1
-
-      #isi_run -z $ZONEIDchown $2 $1
-      #isi_run -z $ZONEID chown :$3 $1
-      #isi_run -z $ZONEID chmod $4 $1
    fi
 }
 
@@ -85,23 +81,19 @@ function getHdfsRoot() {
     echo $hdfsroot
 }
 
-function getAccessZoneId() {
-    local zoneid
-    zoneid=$(isi zone zones view $1 | grep "Zone ID:" | cut -f2 -d :)
-    echo $zoneid
-}
-
 #Params: Username
+#returns: UID
 function getUserUid() {
     local uid
-    uid=$(isi auth users view --zone $ZONE $1$CLUSTERNAME | grep "  UID" | cut -f2 -d :)
+    uid=$(isi auth users view --zone $ZONE $1 | grep "  UID" | cut -f2 -d :)
     echo $uid
 }
 
 #Params: GroupName
+#returns: GID
 function getGroupGid() {
     local gid
-    gid=$(isi auth groups view --zone $ZONE $1$CLUSTERNAME | grep "  GID:" | cut -f2 -d :)
+    gid=$(isi auth groups view --zone $ZONE $1 | grep "  GID:" | cut -f2 -d :)
     echo $gid
 }
 
@@ -135,8 +127,8 @@ while [ "z$1" != "z" ] ; do
              ;;
       "--append-cluster-name")
              shift
-             CLUSTERNAME="-$1"
-             echo "Info: will add clustername to end of usernames: $CLUSTERNAME"
+             CLUSTER_NAME="-$1"
+             echo "Info: will add clustername to end of usernames: $CLUSTER_NAME"
              ;;
       *)     echo "ERROR -- unknown arg $1"
              usage
@@ -306,9 +298,6 @@ case "$DIST" in
         ;;
 esac
 
-ZONEID=$(getAccessZoneId $ZONE)
-echo "Info: Access Zone ID is $ZONEID"
-
 HDFSROOT=$(getHdfsRoot $ZONE)
 echo "Info: HDFS root dir is $HDFSROOT"
 
@@ -327,6 +316,13 @@ prefix=0
 
 for direntry in ${dirList[*]}; do
    read -a specs <<<"$(echo $direntry | sed 's/#/ /g')"
+
+   if [[ ${specs[0]} == /user/* ]] ; then
+     specs[0]="${specs[0]}$CLUSTER_NAME"
+   fi
+   specs[2]="${specs[2]}$CLUSTER_NAME"
+   specs[3]="${specs[3]}$CLUSTER_NAME"
+
    echo "DEBUG: specs dirname ${specs[0]}; perm ${specs[1]}; owner ${specs[2]}; group ${specs[3]}"
    ifspath=$HDFSROOT${specs[0]}
    # echo "DEBUG:  ifspath = $ifspath"
