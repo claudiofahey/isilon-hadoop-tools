@@ -17,6 +17,7 @@ DIST=""
 STARTUID=1000
 STARTGID=1000
 ZONE="System"
+CLUSTERNAME=""
 
 #set -x
 
@@ -27,7 +28,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>] [--append-cluster-name <clustername>]"
    exit 1
 }
 
@@ -59,11 +60,11 @@ function uidInUse() {
 }
 
 function userExists() {
-   isi auth users view $1 --zone $2 > /dev/null 2>&1
+   isi auth users view $1$CLUSTERNAME --zone $2 > /dev/null 2>&1
 }
 
 function groupExists() {
-   isi auth groups view $1 --zone $2 > /dev/null 2>&1
+   isi auth groups view $1$CLUSTERNAME --zone $2 > /dev/null 2>&1
 }
 
 function gidInUse() {
@@ -72,7 +73,7 @@ function gidInUse() {
 
 function getUidFromUser() {
    local uid
-   uid=$(isi auth users view $1 --zone $2 | awk '/^ *UID:/ {print $2}')
+   uid=$(isi auth users view $1$CLUSTERNAME --zone $2 | awk '/^ *UID:/ {print $2}')
    echo $uid
 }
 
@@ -84,7 +85,7 @@ function getUserFromUid() {
 
 function getGidFromGroup() {
    local gid
-   gid=$(isi auth groups view $1 --zone $2 | awk '/^ *GID:/ {print $2}')
+   gid=$(isi auth groups view $1$CLUSTERNAME --zone $2 | awk '/^ *GID:/ {print $2}')
    echo $gid
 }
 
@@ -139,6 +140,11 @@ while [ "z$1" != "z" ] ; do
              shift
              ZONE="$1"
              echo "Info: will put users in zone:  $ZONE"
+             ;;
+      "--append-cluster-name"
+             shift
+             CLUSTERNAME="-$1"
+             echo "Info: will add clustername to end of usernames: $CLUSTERNAME"
              ;;
       *)
              echo "ERROR -- unknown arg $1"
@@ -217,7 +223,7 @@ for user in $REQUIRED_USERS; do
        user=$(getUserFromUid $uid $ZONE)
        addError "UID $uid already in use by user $user in zone $ZONE"
     else
-       isi auth users create $user --uid $uid --primary-group $user --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user
+       isi auth users create $user$CLUSTERNAME --uid $uid --primary-group $user --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user
        [ $? -ne 0 ] && addError "Could not create user $user with uid $uid in zone $ZONE"
     fi
     uid=$(( $uid + 1 ))
@@ -225,23 +231,23 @@ done
 
 for user in $SUPER_USERS; do
     for group in $SUPER_GROUPS; do
-       isi auth groups modify $group --add-user $user --zone $ZONE
-       [ $? -ne 0 ] && addError "Could not add user $user to $group group in zone $ZONE"
+       isi auth groups modify $group --add-user $user$CLUSTERNAME --zone $ZONE
+       [ $? -ne 0 ] && addError "Could not add user $user$CLUSTERNAME to $group group in zone $ZONE"
        done
 done
 
 # Special cases
 case "$DIST" in
     "cdh")
-        isi auth groups modify sqoop --add-user sqoop2 --zone $ZONE
+        isi auth groups modify sqoop --add-user sqoop2$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user sqoop2 to sqoop group in zone $ZONE"
         ;;
     "bi")
-        isi auth groups modify users --add-user hive --zone $ZONE
+        isi auth groups modify users$ --add-user hive$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to users group in zone $ZONE"
-        isi auth groups modify hcat --add-user hive --zone $ZONE
+        isi auth groups modify hcat --add-user hive$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to hcat group in zone $ZONE"
-        isi auth groups modify knox --add-user kafka --zone $ZONE
+        isi auth groups modify knox --add-user kafka$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user kafka to knox group in zone $ZONE"
         ;;
 esac

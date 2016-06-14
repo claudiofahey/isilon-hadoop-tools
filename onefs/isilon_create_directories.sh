@@ -16,6 +16,7 @@ declare -a ERRORLIST=()
 DIST=""
 FIXPERM="n"
 ZONE="System"
+CLUSTERNAME=""
 
 #set -x
 
@@ -93,7 +94,7 @@ function getAccessZoneId() {
 #Params: Username
 function getUserUid() {
     local uid
-    uid=$(isi auth users view --zone $ZONE $1 | grep "  UID" | cut -f2 -d :)
+    uid=$(isi auth users view --zone $ZONE $1$CLUSTERNAME | grep "  UID" | cut -f2 -d :)
     echo $uid
 }
 
@@ -131,6 +132,11 @@ while [ "z$1" != "z" ] ; do
       "--fixperm")
              echo "Info: will fix permissions and owners on existing directories"
              FIXPERM="y"
+             ;;
+      "--append-cluster-name"
+             shift
+             CLUSTERNAME="-$1"
+             echo "Info: will add clustername to end of usernames: $CLUSTERNAME"
              ;;
       *)     echo "ERROR -- unknown arg $1"
              usage
