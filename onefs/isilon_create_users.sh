@@ -141,7 +141,7 @@ while [ "z$1" != "z" ] ; do
              ZONE="$1"
              echo "Info: will put users in zone:  $ZONE"
              ;;
-      "--append-cluster-name"
+      "--append-cluster-name")
              shift
              CLUSTERNAME="-$1"
              echo "Info: will add clustername to end of usernames: $CLUSTERNAME"

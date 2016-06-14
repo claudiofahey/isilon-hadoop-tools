@@ -27,7 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--zone <ZONE>] [--fixperm]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--zone <ZONE>] [--fixperm] [--append-cluster-name <clustername>]"
    exit 1
 }
 
@@ -133,7 +133,7 @@ while [ "z$1" != "z" ] ; do
              echo "Info: will fix permissions and owners on existing directories"
              FIXPERM="y"
              ;;
-      "--append-cluster-name"
+      "--append-cluster-name")
              shift
              CLUSTERNAME="-$1"
              echo "Info: will add clustername to end of usernames: $CLUSTERNAME"
