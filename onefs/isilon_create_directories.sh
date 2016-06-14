@@ -61,9 +61,15 @@ function fixperm() {
    if [ "z$1" == "z" ] ; then
       echo "ERROR -- function fixperm needs directory owner group perm as an argument"
    else
-      isi_run -z $ZONEID chown $2 $1
-      isi_run -z $ZONEID chown :$3 $1
-      isi_run -z $ZONEID chmod $4 $1
+      uid=$(getUserUid $2)
+      gid=$(getGroupGid $3)
+      chown $uid $1
+      chown :$gid $1
+      chmod $4 $1
+
+      #isi_run -z $ZONEIDchown $2 $1
+      #isi_run -z $ZONEID chown :$3 $1
+      #isi_run -z $ZONEID chmod $4 $1
    fi
 }
 
@@ -80,9 +86,24 @@ function getHdfsRoot() {
 
 function getAccessZoneId() {
     local zoneid
-    hdfsroot=$(isi zone zones view $1 | grep "Zone ID:" | cut -f2 -d :)
-    echo $hdfsroot
+    zoneid=$(isi zone zones view $1 | grep "Zone ID:" | cut -f2 -d :)
+    echo $zoneid
 }
+
+#Params: Username
+function getUserUid() {
+    local uid
+    uid=$(isi auth users view --zone $ZONE $1 | grep "  UID" | cut -f2 -d :)
+    echo $uid
+}
+
+#Params: GroupName
+function getGroupGid() {
+    local gid
+    gid=$(isi auth groups view --zone $ZONE $1 | grep "  GID:" | cut -f2 -d :)
+    echo $gid
+}
+
 
 if [ "`uname`" != "Isilon OneFS" ]; then
    fatal "Script must be run on Isilon cluster as root."
