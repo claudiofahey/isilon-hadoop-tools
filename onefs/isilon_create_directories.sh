@@ -101,7 +101,7 @@ function getUserUid() {
 #Params: GroupName
 function getGroupGid() {
     local gid
-    gid=$(isi auth groups view --zone $ZONE $1 | grep "  GID:" | cut -f2 -d :)
+    gid=$(isi auth groups view --zone $ZONE $1$CLUSTERNAME | grep "  GID:" | cut -f2 -d :)
     echo $gid
 }
 

@@ -206,8 +206,8 @@ for group in $REQUIRED_GROUPS; do
        group=$(getGroupFromGid $gid $ZONE)
        addError "GID $gid already in use by group $group in zone $ZONE"
     else
-       isi auth groups create $group --gid $gid --zone $ZONE
-       [ $? -ne 0 ] && addError "Could not create group $group with gid $gid in zone $ZONE"
+       isi auth groups create $group$CLUSTERNAME --gid $gid --zone $ZONE
+       [ $? -ne 0 ] && addError "Could not create group $group$CLUSTERNAME with gid $gid in zone $ZONE"
     fi
     gid=$(( $gid + 1 ))
 done
@@ -218,36 +218,36 @@ for user in $REQUIRED_USERS; do
     # echo "DEBUG:  UID=$uid"
     if userExists $user $ZONE ; then
        uid=$(getUidFromUser $user $ZONE)
-       addError "User $user already exists at uid $uid in zone $ZONE"
+       addError "User $user$CLUSTERNAME already exists at uid $uid in zone $ZONE"
     elif uidInUse $uid $ZONE ; then
        user=$(getUserFromUid $uid $ZONE)
-       addError "UID $uid already in use by user $user in zone $ZONE"
+       addError "UID $uid already in use by user $user$CLUSTERNAME in zone $ZONE"
     else
-       isi auth users create $user$CLUSTERNAME --uid $uid --primary-group $user --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user
-       [ $? -ne 0 ] && addError "Could not create user $user with uid $uid in zone $ZONE"
+       isi auth users create $user$CLUSTERNAME --uid $uid --primary-group $user$CLUSTERNAME --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user
+       [ $? -ne 0 ] && addError "Could not create user $user$CLUSTERNAME with uid $uid in zone $ZONE"
     fi
     uid=$(( $uid + 1 ))
 done
 
 for user in $SUPER_USERS; do
     for group in $SUPER_GROUPS; do
-       isi auth groups modify $group --add-user $user$CLUSTERNAME --zone $ZONE
-       [ $? -ne 0 ] && addError "Could not add user $user$CLUSTERNAME to $group group in zone $ZONE"
+       isi auth groups modify $group$CLUSTERNAME --add-user $user$CLUSTERNAME --zone $ZONE
+       [ $? -ne 0 ] && addError "Could not add user $user$CLUSTERNAME to $group$CLUSTERNAME group in zone $ZONE"
        done
 done
 
 # Special cases
 case "$DIST" in
     "cdh")
-        isi auth groups modify sqoop --add-user sqoop2$CLUSTERNAME --zone $ZONE
+        isi auth groups modify sqoop$CLUSTERNAME --add-user sqoop2$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user sqoop2 to sqoop group in zone $ZONE"
         ;;
     "bi")
-        isi auth groups modify users$ --add-user hive$CLUSTERNAME --zone $ZONE
+        isi auth groups modify users$CLUSTERNAME --add-user hive$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to users group in zone $ZONE"
-        isi auth groups modify hcat --add-user hive$CLUSTERNAME --zone $ZONE
+        isi auth groups modify hcat$CLUSTERNAME --add-user hive$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to hcat group in zone $ZONE"
-        isi auth groups modify knox --add-user kafka$CLUSTERNAME --zone $ZONE
+        isi auth groups modify knox$CLUSTERNAME --add-user kafka$CLUSTERNAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user kafka to knox group in zone $ZONE"
         ;;
 esac
