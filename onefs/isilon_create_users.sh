@@ -17,6 +17,7 @@ DIST=""
 STARTUID=1000
 STARTGID=1000
 ZONE="System"
+CLUSTER_NAME=""
 
 #set -x
 
@@ -27,7 +28,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--startgid <GID>] [--startuid <UID>] [--zone <ZONE>] [--append-cluster-name <clustername>]"
    exit 1
 }
 
@@ -50,7 +51,7 @@ function yesno() {
    [ -n "$1" ] || myPrompt=">>> Please enter yes/no: "
    read -rp "$myPrompt" yn
    [ "z${yn:0:1}" = "zy" -o "z${yn:0:1}" = "zY" ] && return 0
-#   exit "DEBUG:  returning false from function yesno"
+#   exit ":  returning false from function yesno"
    return 1
 }
 
@@ -140,6 +141,11 @@ while [ "z$1" != "z" ] ; do
              ZONE="$1"
              echo "Info: will put users in zone:  $ZONE"
              ;;
+      "--append-cluster-name")
+             shift
+             CLUSTER_NAME="-$1"
+             echo "Info: will add clustername to end of usernames: $CLUSTER_NAME"
+             ;;
       *)
              echo "ERROR -- unknown arg $1"
              usage
@@ -193,6 +199,7 @@ echo "Info: HDFS root:  $HDFSROOT"
 gid=$STARTGID
 for group in $REQUIRED_GROUPS; do
     # echo "DEBUG:  GID=$gid"
+    group="$group$CLUSTER_NAME"
     if groupExists $group $ZONE ; then
        gid=$(getGidFromGroup $group $ZONE)
        addError "Group $group already exists at gid $gid in zone $ZONE"
@@ -210,6 +217,7 @@ done
 uid=$STARTUID
 for user in $REQUIRED_USERS; do
     # echo "DEBUG:  UID=$uid"
+    user="$user$CLUSTER_NAME"
     if userExists $user $ZONE ; then
        uid=$(getUidFromUser $user $ZONE)
        addError "User $user already exists at uid $uid in zone $ZONE"
@@ -224,7 +232,9 @@ for user in $REQUIRED_USERS; do
 done
 
 for user in $SUPER_USERS; do
+    user="$user$CLUSTER_NAME"
     for group in $SUPER_GROUPS; do
+       group="$group$CLUSTER_NAME"
        isi auth groups modify $group --add-user $user --zone $ZONE
        [ $? -ne 0 ] && addError "Could not add user $user to $group group in zone $ZONE"
        done
@@ -233,15 +243,15 @@ done
 # Special cases
 case "$DIST" in
     "cdh")
-        isi auth groups modify sqoop --add-user sqoop2 --zone $ZONE
+        isi auth groups modify sqoop$CLUSTER_NAME --add-user sqoop2$CLUSTER_NAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user sqoop2 to sqoop group in zone $ZONE"
         ;;
     "bi")
-        isi auth groups modify users --add-user hive --zone $ZONE
+        isi auth groups modify users$CLUSTER_NAME --add-user hive$CLUSTER_NAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to users group in zone $ZONE"
-        isi auth groups modify hcat --add-user hive --zone $ZONE
+        isi auth groups modify hcat$CLUSTER_NAME --add-user hive$CLUSTER_NAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user hive to hcat group in zone $ZONE"
-        isi auth groups modify knox --add-user kafka --zone $ZONE
+        isi auth groups modify knox$CLUSTER_NAME --add-user kafka$CLUSTER_NAME --zone $ZONE
         [ $? -ne 0 ] && addError "Could not add user kafka to knox group in zone $ZONE"
         ;;
 esac

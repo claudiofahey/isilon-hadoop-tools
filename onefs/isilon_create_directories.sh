@@ -16,6 +16,7 @@ declare -a ERRORLIST=()
 DIST=""
 FIXPERM="n"
 ZONE="System"
+CLUSTER_NAME=""
 
 #set -x
 
@@ -26,7 +27,7 @@ function banner() {
 }
 
 function usage() {
-   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--zone <ZONE>] [--fixperm]"
+   echo "$0 --dist <cdh|hwx|phd|phd3|bi> [--zone <ZONE>] [--fixperm] [--append-cluster-name <clustername>]"
    exit 1
 }
 
@@ -53,7 +54,7 @@ function makedir() {
    if [ "z$1" == "z" ] ; then
       echo "ERROR -- function makedir needs directory as an argument"
    else
-      mkdir $1
+      mkdir -p $1
    fi
 }
 
@@ -61,9 +62,11 @@ function fixperm() {
    if [ "z$1" == "z" ] ; then
       echo "ERROR -- function fixperm needs directory owner group perm as an argument"
    else
-      isi_run -z $ZONEID chown $2 $1
-      isi_run -z $ZONEID chown :$3 $1
-      isi_run -z $ZONEID chmod $4 $1
+      uid=$(getUserUid $2)
+      gid=$(getGroupGid $3)
+      chown $uid $1
+      chown :$gid $1
+      chmod $4 $1
    fi
 }
 
@@ -78,11 +81,22 @@ function getHdfsRoot() {
     echo $hdfsroot
 }
 
-function getAccessZoneId() {
-    local zoneid
-    hdfsroot=$(isi zone zones view $1 | grep "Zone ID:" | cut -f2 -d :)
-    echo $hdfsroot
+#Params: Username
+#returns: UID
+function getUserUid() {
+    local uid
+    uid=$(isi auth users view --zone $ZONE $1 | grep "  UID" | cut -f2 -d :)
+    echo $uid
 }
+
+#Params: GroupName
+#returns: GID
+function getGroupGid() {
+    local gid
+    gid=$(isi auth groups view --zone $ZONE $1 | grep "  GID:" | cut -f2 -d :)
+    echo $gid
+}
+
 
 if [ "`uname`" != "Isilon OneFS" ]; then
    fatal "Script must be run on Isilon cluster as root."
@@ -110,6 +124,11 @@ while [ "z$1" != "z" ] ; do
       "--fixperm")
              echo "Info: will fix permissions and owners on existing directories"
              FIXPERM="y"
+             ;;
+      "--append-cluster-name")
+             shift
+             CLUSTER_NAME="-$1"
+             echo "Info: will add clustername to end of usernames: $CLUSTER_NAME"
              ;;
       *)     echo "ERROR -- unknown arg $1"
              usage
@@ -279,9 +298,6 @@ case "$DIST" in
         ;;
 esac
 
-ZONEID=$(getAccessZoneId $ZONE)
-echo "Info: Access Zone ID is $ZONEID"
-
 HDFSROOT=$(getHdfsRoot $ZONE)
 echo "Info: HDFS root dir is $HDFSROOT"
 
@@ -300,6 +316,13 @@ prefix=0
 
 for direntry in ${dirList[*]}; do
    read -a specs <<<"$(echo $direntry | sed 's/#/ /g')"
+
+   if [[ ${specs[0]} == /user/* ]] ; then
+     specs[0]="${specs[0]}$CLUSTER_NAME"
+   fi
+   specs[2]="${specs[2]}$CLUSTER_NAME"
+   specs[3]="${specs[3]}$CLUSTER_NAME"
+
    echo "DEBUG: specs dirname ${specs[0]}; perm ${specs[1]}; owner ${specs[2]}; group ${specs[3]}"
    ifspath=$HDFSROOT${specs[0]}
    # echo "DEBUG:  ifspath = $ifspath"
