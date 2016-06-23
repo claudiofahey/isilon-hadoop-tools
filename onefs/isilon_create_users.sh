@@ -162,7 +162,6 @@ case "$DIST" in
         REQUIRED_GROUPS="$REQUIRED_USERS $SUPER_GROUPS sqoop"
         ;;
     "hwx")
-        # See http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_ambari_reference_guide/content/_defining_service_users_and_groups_for_a_hdp_2x_stack.html
         SUPER_USERS="hdfs mapred yarn hbase storm falcon tracer"
         SUPER_GROUPS="hadoop"
         REQUIRED_USERS="$SUPER_USERS tez hive hcat oozie zookeeper ambari-qa flume hue accumulo hadoopqa sqoop anonymous spark mahout ranger kms atlas ams kafka"
@@ -194,6 +193,12 @@ esac
 
 HDFSROOT=$(getHdfsRoot $ZONE)
 echo "Info: HDFS root:  $HDFSROOT"
+passwdfile="$ZONE.passwd"
+echo "Info: passwd file: $passwdfile"
+echo "# use this file to add to the passwd file of your clients" | cat > $passwdfile
+grpfile="$ZONE.group"
+echo "Info: group file: $grpfile"
+echo "# use this file to add to the group file of your clients" | cat > $grpfile
 
 # set -x
 gid=$STARTGID
@@ -209,6 +214,8 @@ for group in $REQUIRED_GROUPS; do
     else
        isi auth groups create $group --gid $gid --zone $ZONE
        [ $? -ne 0 ] && addError "Could not create group $group with gid $gid in zone $ZONE"
+       echo "$group:x:$gid" | cat >> $grpfile
+       [ $? -ne 0 ] && addError "Could not create entry in group file stub $grpfile for $group with gid $gid"
     fi
     gid=$(( $gid + 1 ))
 done
@@ -227,32 +234,55 @@ for user in $REQUIRED_USERS; do
     else
        isi auth users create $user --uid $uid --primary-group $user --zone $ZONE --provider local --home-directory $HDFSROOT/user/$user
        [ $? -ne 0 ] && addError "Could not create user $user with uid $uid in zone $ZONE"
+       gid=$(getGidFromGroup $user $ZONE)
+       echo "$user:x:$uid:$gid:hadoop-svc-account:/home/$user:/bin/bash" | cat >> $passwdfile
+       [ $? -ne 0 ] && addError "Could not create entry in passwd file stub $passwdfile for $user with uid $uid"
     fi
     uid=$(( $uid + 1 ))
 done
+# set +x
 
-for user in $SUPER_USERS; do
-    user="$user$CLUSTER_NAME"
-    for group in $SUPER_GROUPS; do
-       group="$group$CLUSTER_NAME"
-       isi auth groups modify $group --add-user $user --zone $ZONE
-       [ $? -ne 0 ] && addError "Could not add user $user to $group group in zone $ZONE"
-       done
+for group in $SUPER_GROUPS; do
+    group="$group$CLUSTER_NAME"
+    sprgrp=`grep $group $grpfile`
+    [ $? -ne 0 ] && addError "Could not locate entry $group in group file stub $grpfile"
+    for user in $SUPER_USERS; do
+        user="$user$CLUSTER_NAME"
+        isi auth groups modify $group --add-user $user --zone $ZONE
+        [ $? -ne 0 ] && addError "Could not add user $user to $group group in zone $ZONE"
+        sprgrp="$sprgrp,$user"
+    done
+    sed -i .bak /$group/d $grpfile
+    echo $sprgrp | cat >> $grpfile
 done
+# set +x
+
 
 # Special cases
 case "$DIST" in
     "cdh")
         isi auth groups modify sqoop$CLUSTER_NAME --add-user sqoop2$CLUSTER_NAME --zone $ZONE
-        [ $? -ne 0 ] && addError "Could not add user sqoop2 to sqoop group in zone $ZONE"
+        [ $? -ne 0 ] && addError "Could not add user sqoop2$CLUSTER_NAME to sqoop$CLUSTER_NAME group in zone $ZONE"
+        sqp=`grep sqoop2$CLUSTER_NAME $grpfile`
+        sed -i .bak /$sqp/d $grpfile
+        echo "$sqp,sqoop" | cat >> $grpfile
+        [ $? -ne 0 ] && addError "Could not add user sqoop2$CLUSTER_NAME to sqoop$CLUSTER_NAME group in $grpfile"
         ;;
     "bi")
         isi auth groups modify users$CLUSTER_NAME --add-user hive$CLUSTER_NAME --zone $ZONE
-        [ $? -ne 0 ] && addError "Could not add user hive to users group in zone $ZONE"
+        [ $? -ne 0 ] && addError "Could not add user hive$CLUSTER_NAME to users$CLUSTER_NAME group in zone $ZONE"
         isi auth groups modify hcat$CLUSTER_NAME --add-user hive$CLUSTER_NAME --zone $ZONE
-        [ $? -ne 0 ] && addError "Could not add user hive to hcat group in zone $ZONE"
+        [ $? -ne 0 ] && addError "Could not add user hive$CLUSTER_NAME to hcat$CLUSTER_NAME group in zone $ZONE"
+        hct=`grep hcat$CLUSTER_NAME: $grpfile`
+        sed -i .bak /$hct/d $grpfile
+        echo "$hct,hive$CLUSTER_NAME" | cat >> $grpfile
+        [ $? -ne 0 ] && addError "Could not add user hive$CLUSTER_NAME to hcat$CLUSTER_NAME group in $grpfile"
         isi auth groups modify knox$CLUSTER_NAME --add-user kafka$CLUSTER_NAME --zone $ZONE
-        [ $? -ne 0 ] && addError "Could not add user kafka to knox group in zone $ZONE"
+        [ $? -ne 0 ] && addError "Could not add user kafka$CLUSTER_NAME to knox$CLUSTER_NAME group in zone $ZONE"
+        knx=`grep knox$CLUSTER_NAME: $grpfile`
+        sed -i .bak /$knx/d $grpfile
+        echo "$knx,kafka$CLUSTER_NAME" | cat >> $grpfile
+        [ $? -ne 0 ] && addError "Could not add user kafka$CLUSTER_NAME to knox$CLUSTER_NAME group in $grpfile"
         ;;
 esac
 
