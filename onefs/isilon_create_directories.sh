@@ -318,7 +318,10 @@ for direntry in ${dirList[*]}; do
    read -a specs <<<"$(echo $direntry | sed 's/#/ /g')"
 
    if [[ ${specs[0]} == /user/* ]] ; then
-     specs[0]="${specs[0]}$CLUSTER_NAME"
+     IFS='/' read -a path <<<"${specs[0]}"
+     old_path="/user/${path[2]}"
+     new_path="/user/${path[2]}$CLUSTER_NAME"
+     specs[0]="${specs[0]/$old_path/$new_path}"
    fi
    specs[2]="${specs[2]}$CLUSTER_NAME"
    specs[3]="${specs[3]}$CLUSTER_NAME"
