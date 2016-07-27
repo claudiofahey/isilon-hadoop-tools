@@ -194,18 +194,24 @@ for group in $REQUIRED_GROUPS; do
     # echo "DEBUG:  GID=$gid"
     group="$group$CLUSTER_NAME"
     if groupExists $group $ZONE ; then
-       gid=$(getGidFromGroup $group $ZONE)
-       addError "Group $group already exists at gid $gid in zone $ZONE"
-    elif gidInUse $gid $ZONE ; then
-       group=$(getGroupFromGid $gid $ZONE)
-       addError "GID $gid already in use by group $group in zone $ZONE"
+       matchedgid=$(getGidFromGroup $group $ZONE)
+       if matchedgid != gid
+           echo "$group:x:$matchedgid" | cat >> $grpfile
+       else
+           gid$(( $gid + 1))
+       fi
+       #addError "Group $group already exists at gid $gid in zone $ZONE"
+    elif #gidInUse $gid $ZONE ; then
+       #group=$(getGroupFromGid $matchedgid $ZONE)
+       #addError "GID $gid already in use by group $group in zone $ZONE"
+       while 
     else
        isi auth groups create $group --gid $gid --zone $ZONE
        [ $? -ne 0 ] && addError "Could not create group $group with gid $gid in zone $ZONE"
        echo "$group:x:$gid" | cat >> $grpfile
-       [ $? -ne 0 ] && addError "Could not create entry in group file stub $grpfile for $group with gid $gid"
+       [ $? -ne 0 ] && addError "Could not create entry in group file stub $grpfile for $group with gid $gid" 
+       gid=$(( $gid + 1))
     fi
-    gid=$(( $gid + 1 ))
 done
 # set +x
 
@@ -214,7 +220,7 @@ for user in $REQUIRED_USERS; do
     # echo "DEBUG:  UID=$uid"
     user="$user$CLUSTER_NAME"
     if userExists $user $ZONE ; then
-       uid=$(getUidFromUser $user $ZONE)
+       matcheduid=$(getUidFromUser $user $ZONE)
        addError "User $user already exists at uid $uid in zone $ZONE"
     elif uidInUse $uid $ZONE ; then
        user=$(getUserFromUid $uid $ZONE)
